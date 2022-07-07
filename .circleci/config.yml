@@ -18,9 +18,38 @@ jobs:
           name: "Say hello"
           command: "echo Hello, World!"
 
+  # my added jobs
+  build:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run lint
+  test:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run test
+  analyze:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: npm audit
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
     jobs:
       - say-hello
+      - build
+      - test:
+          requires:
+            - build
+      - analyze:
+          requires:
+            - test
